@@ -194,25 +194,29 @@ videochat/
 - `report_status_type`: `pending`, `reviewed`, `dismissed`
 
 ### Tabelas existentes
-Tabela	Descrição	Observações
-users	Usuários da plataforma	soft delete via deleted_at, birth_date obrigatório, gender_type
-user_sessions	Sessões ativas	máx 3 por usuário (regra no backend)
-credit_packages	Pacotes de créditos para venda	is_active flag
-transactions	Compras via Stripe	FK → users, credit_packages
-credit_ledger	Livro-caixa imutável	sem updated_at, RULE PostgreSQL bloqueia UPDATE e DELETE (credit_ledger_no_update, credit_ledger_no_delete)
-calls	Sessões de videochamada	UNIQUE em daily_room_name
-payouts	Repasses financeiros para mulheres	available_at = call encerrada + 7 dias
-call_messages	Mensagens durante call	imutável, sem updated_at
-friendships	Solicitações de amizade	UNIQUE(requester_id, addressee_id)
-direct_messages	Mensagens diretas entre amigos	imutável, sem updated_at
-call_ratings	Avaliação da call	UNIQUE em call_id
-reports	Denúncias de usuários	FK opcional para calls
+
+| Tabela | Descrição | Observações |
+|---|---|---|
+| users | Usuários da plataforma | soft delete via deleted_at, birth_date obrigatório, gender_type |
+| user_sessions | Sessões ativas | máx 3 por usuário (regra no backend) |
+| credit_packages | Pacotes de créditos para venda | is_active flag |
+| transactions | Compras via Stripe | FK → users, credit_packages |
+| credit_ledger | Livro-caixa imutável | sem updated_at, RULE PostgreSQL bloqueia UPDATE e DELETE (credit_ledger_no_update, credit_ledger_no_delete) |
+| calls | Sessões de videochamada | UNIQUE constraint em daily_room_name (calls_daily_room_name_unique — migration 002) |
+| payouts | Repasses financeiros para mulheres | available_at = call encerrada + 7 dias |
+| call_messages | Mensagens durante call | imutável, sem updated_at |
+| friendships | Solicitações de amizade | UNIQUE(requester_id, addressee_id) |
+| direct_messages | Mensagens diretas entre amigos | imutável, sem updated_at |
+| call_ratings | Avaliação da call | UNIQUE em call_id |
+| reports | Denúncias de usuários | FK opcional para calls |
+
 ---
 
 ## Status do Projeto
 
 ### ✅ Concluído
 - [x] Sessão 01 — DB Schema completo (`supabase/migrations/001_initial_schema.sql`)
+- [x] Fix 002 — UNIQUE constraint em `calls.daily_room_name` (`supabase/migrations/002_fix_calls_daily_room_name_unique.sql`)
 - [x] Sessão 02 — Auth & Accounts (`apps/api/src/modules/auth/`)
 
 ### 🔄 Em progresso
@@ -322,6 +326,7 @@ NEXT_PUBLIC_API_URL=
 | 01 | RULE de imutabilidade do `credit_ledger` não foi gerada pelo Claude Code | Sempre validar com `SELECT rulename FROM pg_rules WHERE tablename = 'credit_ledger'` após Sessão 01 |
 | 01 | `supabase db reset` retorna 22 ENUMs (não 9) | Normal — inclui ENUMs internos do Supabase/auth. Filtrar pelos 9 do projeto via nome |
 | 01 | Claude Code pode omitir constraints críticas sem avisar | Sempre rodar o checklist completo de validação antes de sinalizar sessão como ✅ |
+| 01 | `calls.daily_room_name` criado com índice simples em vez de UNIQUE constraint | Sempre usar `ADD CONSTRAINT ... UNIQUE` para unicidade funcional; índice simples não impede duplicatas |
 | 02 | Arquivos salvos com encoding Windows em vez de UTF-8 | Rodar `chcp 65001` antes da sessão e salvar todos os arquivos como UTF-8 no VS Code |
 | 02 | `birth_date NOT NULL` não estava no RegisterDto original | Sempre revisar colunas NOT NULL sem default antes de executar a sessão |
 | 02 | Caminhos no .md apontavam para `backend/src/` em vez de `apps/api/src/modules/` | Validar caminhos no .md antes de executar qualquer sessão |
