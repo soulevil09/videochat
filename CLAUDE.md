@@ -141,10 +141,10 @@ videochat/
 
 | Método | Rota | Auth | Módulo | Status |
 |----|----|----|----|----|
-| POST | /auth/register | ❌ | Auth | ⏳ |
-| POST | /auth/login | ❌ | Auth | ⏳ |
-| POST | /auth/logout | ✅ | Auth | ⏳ |
-| GET | /auth/me | ✅ | Auth | ⏳ |
+| POST | /auth/register | ❌ | Auth | ✅ |
+| POST | /auth/login | ❌ | Auth | ✅ |
+| POST | /auth/logout | ✅ | Auth | ✅ |
+| GET | /auth/me | ✅ | Auth | ✅ |
 | GET | /credits/balance | ✅ | Credits | ⏳ |
 | POST | /credits/purchase | ✅ | Credits | ⏳ |
 | POST | /stripe/webhook | ❌ | Stripe | ⏳ |
@@ -213,11 +213,11 @@ reports	Denúncias de usuários	FK opcional para calls
 
 ### ✅ Concluído
 - [x] Sessão 01 — DB Schema completo (`supabase/migrations/001_initial_schema.sql`)
+- [x] Sessão 02 — Auth & Accounts (`apps/api/src/modules/auth/`)
 
 ### 🔄 Em progresso
 
 ### ⏳ Pendente
-- [ ] Sessão 02 — Auth & Accounts (`modules/auth/`)
 - [ ] Sessão 03 — Credits System (`modules/credits/`)
 - [ ] Sessão 04 — Stripe Integration (`modules/stripe/`)
 - [ ] Sessão 05 — Matching Engine (`modules/matching/`)
@@ -318,7 +318,11 @@ NEXT_PUBLIC_API_URL=
 ## Lições Aprendidas
 
 | Sessão | Problema | Solução |
-|--------|----------|---------|
+|----|----|----|
 | 01 | RULE de imutabilidade do `credit_ledger` não foi gerada pelo Claude Code | Sempre validar com `SELECT rulename FROM pg_rules WHERE tablename = 'credit_ledger'` após Sessão 01 |
 | 01 | `supabase db reset` retorna 22 ENUMs (não 9) | Normal — inclui ENUMs internos do Supabase/auth. Filtrar pelos 9 do projeto via nome |
 | 01 | Claude Code pode omitir constraints críticas sem avisar | Sempre rodar o checklist completo de validação antes de sinalizar sessão como ✅ |
+| 02 | Arquivos salvos com encoding Windows em vez de UTF-8 | Rodar `chcp 65001` antes da sessão e salvar todos os arquivos como UTF-8 no VS Code |
+| 02 | `birth_date NOT NULL` não estava no RegisterDto original | Sempre revisar colunas NOT NULL sem default antes de executar a sessão |
+| 02 | Caminhos no .md apontavam para `backend/src/` em vez de `apps/api/src/modules/` | Validar caminhos no .md antes de executar qualquer sessão |
+| 02 | `credit_balance` referenciado no .md mas coluna não existe em `users` | Saldo de créditos vive exclusivamente em `credit_ledger` — nunca em `users` |
