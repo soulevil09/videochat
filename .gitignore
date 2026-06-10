@@ -47,3 +47,8 @@ pnpm-debug.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# ================================
+# Supabase snippets temporários
+supabase/snippets/
+# ================================
